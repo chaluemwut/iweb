@@ -5,14 +5,23 @@ from flask import render_template
 from iweb.model import Model
 from iweb.sys import AppConfig
 
-import json
+import json,logging
 
 appConfig = AppConfig()
-
+ 
+logger = logging.getLogger("iweb")
+logger.setLevel(logging.DEBUG)
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s : %(module)s : %(lineno)d : %(message)s', datefmt='%d/%m/%Y %I:%M:%S %p')
+ch.setFormatter(formatter)
+logger.addHandler(ch)
+    
 class BaseView(View):
     controller_debug = False
-
-    def __init__(self):
+    log = logging.getLogger('iweb')
+    
+    def __init__(self):     
         self.model = Model()
         self.db = self.model.db
 
@@ -22,7 +31,7 @@ class BaseView(View):
             ret[p] = request.args.get(p)
         return ret
 
-class PersistenceAndResult(View):
+class PersistenceAndResult(BaseView):
     def dispatch_request(self):
         try:
             map_result = self.process()
@@ -34,7 +43,7 @@ class PersistenceAndResult(View):
             return Response(json.dumps(map_result), mimetype='application/json')
 
 
-class PersistenceOnly(View):
+class PersistenceOnly(BaseView):
     def dispatch_request(self):
         map_result = {}
         try:
@@ -50,35 +59,37 @@ class PersistenceOnly(View):
 
 
 class APIController(BaseView):
-
-
+    map_result = {}
+    
     def process(self):
         raise NotImplementedError()
 
     def dispatch_request(self):
         data = None
-        map_result = {}
+        self.log.info('*** start request')
         try:
-            map_result['status'] = 1
-            map_result['description'] = 'OK Request'
+            self.map_result['status'] = 1
+            self.map_result['description'] = 'OK Request'
             data = self.process()
             if data != None:
-                map_result['data'] = data
+                self.map_result['data'] = data
         except Exception as e:
-            print(e)
+            self.log.info(e)
             self.map_result['status'] = -1
             self.map_result['description'] = 'Request error'
+            
         from bson import json_util
-        json_result = json.dumps(map_result, default=json_util.default)
+        json_result = json.dumps(self.map_result, default=json_util.default)
 
         data = None
-        map_result = {}
+        self.map_result = {}
         self.model.client.close()
-
+        
+        self.log.info('*** end request')
         return Response(json_result, mimetype='application/json')
 
 
-class ViewController(View):
+class ViewController(BaseView):
     page_name = None
 
     def process(self):
