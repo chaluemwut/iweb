@@ -102,7 +102,7 @@ class ViewController(BaseView):
         try:
             result = self.process()
         except Exception as e:
-            print(e)
+            self.log.info(str(e))
         
         if self.page_controller:
             return redirect(self.page_name)
