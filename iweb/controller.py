@@ -105,7 +105,7 @@ class ViewController(BaseView):
             print(e)
         
         if self.page_controller:
-            redirect(self.page_name)
+            return redirect(self.page_name)
         else:
             return render_template(self.page_name, **result)
     

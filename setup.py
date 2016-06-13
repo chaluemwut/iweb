@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="iweb",
-    version="0.0.9",
+    version="0.0.10",
     description="iweb is a framework for developing Model View Controller (MVC).",
     author='Chaluemwut Noyunsan',
     packages=["iweb"],
