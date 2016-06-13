@@ -1,4 +1,4 @@
-from flask import Response, request
+from flask import Response, request, redirect
 from flask.views import View
 from flask import render_template
 
@@ -91,6 +91,7 @@ class APIController(BaseView):
 
 class ViewController(BaseView):
     page_name = None
+    page_controller = False
 
     def process(self):
         raise NotImplementedError()
@@ -100,7 +101,11 @@ class ViewController(BaseView):
             result = self.process()
         except Exception as e:
             print(e)
-        return render_template(self.page_name, **result)
+        
+        if self.page_controller:
+            redirect(self.page_name)
+        else:
+            return render_template(self.page_name, **result)
     
 class RenderTemplateView(View):
     def __init__(self, template_name):
