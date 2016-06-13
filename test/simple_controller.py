@@ -16,6 +16,8 @@ iweb = iWeb(app)
 class TestController(APIController):
 
     def process(self):
+        self.log.info('*** start list controller')
+        a = 1/0
         return list(self.db.test_db.find())
 
 class TestInsertController(APIController):
