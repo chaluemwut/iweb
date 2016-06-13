@@ -19,11 +19,13 @@ logger.addHandler(ch)
     
 class BaseView(View):
     controller_debug = False
+    used_model = False
     log = logging.getLogger('iweb')
     
-    def __init__(self):     
-        self.model = Model()
-        self.db = self.model.db
+    def __init__(self): 
+        if self.used_model:
+            self.model = Model()
+            self.db = self.model.db
 
     def get_parameters(self, params):
         ret = {}
