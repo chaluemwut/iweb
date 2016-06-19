@@ -91,7 +91,6 @@ class APIController(BaseView):
 
         data = None
         self.map_result = {}
-        self.model.client.close()
         
         self.log.info('*** end request')
         return Response(json_result, mimetype='application/json')
