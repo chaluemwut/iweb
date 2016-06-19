@@ -1,6 +1,6 @@
 from flask import Response, request, redirect
 from flask.views import View
-from flask import render_template
+from flask import render_template, url_for
 
 from iweb.model import Model
 from iweb.sys import AppConfig
@@ -26,6 +26,12 @@ class BaseView(View):
         if self.used_model:
             self.model = Model()
             self.db = self.model.db
+    
+    def get_post(self, params):
+        ret = {}
+        for p in params:
+            ret[p] = request.form[p]
+        return ret
 
     def get_parameters(self, params):
         ret = {}
@@ -96,7 +102,7 @@ class ViewController(BaseView):
     page_controller = False
 
     def process(self):
-        raise NotImplementedError()
+        raise NotImplementedError()        
 
     def dispatch_request(self):
         try:
@@ -108,6 +114,27 @@ class ViewController(BaseView):
             return redirect(self.page_name)
         else:
             return render_template(self.page_name, **result)
+
+
+class CusAndConController(BaseView):
+    
+    def process(self):
+        raise NotImplementedError()
+    
+    def return_view(self, page_name, result):
+        return render_template(page_name, **result)
+    
+    def return_controller(self, page_name):
+        return redirect(url_for(page_name))
+    
+    def return_json(self, map_result):
+        return Response(json.dumps(map_result), mimetype='application/json')
+        
+    def dispatch_request(self):
+        try:
+            return self.process()
+        except Exception as e:
+            self.log.info(str(e))
     
 class RenderTemplateView(View):
     def __init__(self, template_name):
