@@ -23,6 +23,11 @@ class BaseView(View):
     log = logging.getLogger('iweb')
     
     def __init__(self): 
+        self.log.info('*** start base view')
+        try:
+            self.used_model = appConfig.app.config['controller.user_model']
+        except Exception as e:
+            self.log.info(e)  
         if self.used_model:
             self.model = Model()
             self.db = self.model.db
